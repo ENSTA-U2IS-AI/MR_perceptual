@@ -5,7 +5,7 @@ from data.image_folder import make_dataset
 from PIL import Image
 import numpy as np
 import torch
-from transformerIQA.mrpl.mrpl import opening_patterns,openingclosing_patterns, se0,se1,se2
+from mrpl.mrpl import opening_patterns,openingclosing_patterns, se0,se1,se2
 # from IPython import embed
 
 class TwoAFCDataset(BaseDataset):

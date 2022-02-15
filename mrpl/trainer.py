@@ -8,7 +8,7 @@ from collections import OrderedDict
 from torch.autograd import Variable
 from scipy.ndimage import zoom
 from tqdm import tqdm
-import transformerIQA.mrpl.mrpl as mrpl
+import mrpl.mrpl as mrpl
 import os
 from PIL import Image
 
@@ -18,7 +18,7 @@ class Trainer():
 
     def initialize(self, model='MRPL', net='alex', colorspace='Lab', pnet_rand=False, pnet_tune=False, model_path=None,
             use_gpu=True, printNet=False, spatial=False,RBF=False,randomRBF=False,
-            loss_type=None,norm=None,feature=None,resolution=None,mrpl=False,
+            loss_type=None,norm=None,feature=None,resolution=None,mrpl_model=False,
             is_train=False, lr=.0001, beta1=0.5, version='0.1', gpu_ids=[0]):
         '''
         INPUTS
@@ -50,13 +50,13 @@ class Trainer():
         self.resolution = resolution
         self.norm = norm
         self.loss_type = loss_type
-        self.mrpl = mrpl
+        self.mrpl = mrpl_model
 
         if(self.model == 'lpips'): # pretrained net + linear layer
             self.net = mrpl.MRPL(pretrained=not is_train, net=net, version=version, lpips=True, spatial=spatial, 
                 pnet_rand=pnet_rand, pnet_tune=pnet_tune, 
                 use_dropout=True, model_path=model_path, eval_mode=False,randomRBF=randomRBF)
-        elif(self.model=='MRPL'): # pretrained network
+        elif(self.model=='mrpl'): # pretrained network
             self.net = mrpl.MRPL(pretrained=not is_train, net=net, version=version, lpips=False, spatial=spatial, 
                 pnet_rand=pnet_rand, pnet_tune=pnet_tune, 
                 use_dropout=True, model_path=model_path, eval_mode=False,randomRBF=randomRBF,

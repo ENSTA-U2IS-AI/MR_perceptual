@@ -9,7 +9,7 @@ import torch
 import torch.nn.functional as F
 
 from mrpl.trainer import *
-from transformerIQA.mrpl.mrpl import *
+from mrpl.mrpl import *
 
 def normalize_tensor(in_feat,norm='L2',eps=1e-10):
 
@@ -30,8 +30,6 @@ def normalize_tensor(in_feat,norm='L2',eps=1e-10):
         raise('Not implemented!')
 
     
-
-
 def l2(p0, p1, range=255.):
     return .5*np.mean((p0 / range - p1 / range)**2)
 

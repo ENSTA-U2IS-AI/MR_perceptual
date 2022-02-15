@@ -1,5 +1,7 @@
-
 from __future__ import absolute_import
+
+import mrpl as mrpl
+
 
 import torch
 import torch.nn as nn
@@ -7,7 +9,7 @@ import torch.nn.init as init
 from torch.autograd import Variable
 import numpy as np
 from . import pretrained_networks as pn
-from . import pretrained_VIT as pnVIT
+#from . import pretrained_VIT as pnVIT
 import torch.nn
 import math
 from PIL import Image
@@ -16,7 +18,8 @@ from skimage.morphology import black_tophat, skeletonize, convex_hull_image
 from skimage.morphology import square, diamond, octagon, rectangle, star, disk
 from skimage.filters.rank import entropy, enhance_contrast_percentile
 from pytorch_msssim import ssim, ms_ssim, SSIM, MS_SSIM
-import transformerIQA.mrpl.mrpl as mrpl
+
+
 
 def spatial_average(in_tens, keepdim=True):
     return in_tens.mean([2,3],keepdim=keepdim)
@@ -86,7 +89,7 @@ class MRPL(nn.Module):
         elif(self.pnet_type=='squeeze'):
             net_type = pn.squeezenet
             self.chns = [64,128,256,384,384,512,512]
-        self.L = len(self.chns)
+
         if self.pnet_type == 'alex' :
                 self.net = net_type(pretrained=not self.pnet_rand, requires_grad=self.pnet_tune,features=self.feature,resolution=self.resolution,MRPL=self.mrpl)            
         elif self.pnet_type!='vit':
@@ -144,10 +147,14 @@ class MRPL(nn.Module):
         # v0.0 - original release had a bug, where input was not scaled
         in0_input, in1_input = (self.scaling_layer(in0), self.scaling_layer(in1)) if self.version=='0.1' else (in0, in1)
         outs0, outs1 = self.net.forward(in0_input), self.net.forward(in1_input)
+
         feats0, feats1, diffs = {}, {}, {}
 
         if self.mrpl_like :
             self.L = len(outs0)
+
+        else :
+            self.L = len(self.chns)
 
         for kk in range(self.L):
             if ((self.randomRBF) and (not self.entropy) and (not self.ssim)):
@@ -157,10 +164,10 @@ class MRPL(nn.Module):
                 diffs[kk] = (feats0[kk] - feats1[kk]) ** 2
                 
             elif ((not self.randomRBF) and (self.loss_type == 'CE') and (not self.ssim)):
-                feats0[kk], feats1[kk] = mrpl.normalize_tensor(outs0[kk]),self.norm,mrpl.normalize_tensor(outs1[kk])
+                feats0[kk], feats1[kk] = mrpl.normalize_tensor(outs0[kk],norm=self.norm), mrpl.normalize_tensor(outs1[kk],norm=self.norm)
                 diffs[kk] = self.loss(feats0[kk],feats1[kk])
             elif ((not self.randomRBF) and (self.loss_type == 'MSE') and (not self.ssim)):
-                feats0[kk], feats1[kk] = mrpl.normalize_tensor(outs0[kk]),self.norm, mrpl.normalize_tensor(outs1[kk])
+                feats0[kk], feats1[kk] = mrpl.normalize_tensor(outs0[kk],norm=self.norm), mrpl.normalize_tensor(outs1[kk],norm=self.norm)
                 diffs[kk] = (feats0[kk] - feats1[kk]) ** 2
             elif ((self.RBF) and (not self.entropy) and (not self.ssim)):
                 feats0[kk], feats1[kk] = mrpl.normalize_tensor(outs0[kk]), mrpl.normalize_tensor(outs1[kk])
@@ -210,7 +217,6 @@ class ScalingLayer(nn.Module):
 
 
 class RFFKernel(nn.Module):
-
 
     def __init__(self, num_imput, num_samples, length_scale):
         super().__init__()
