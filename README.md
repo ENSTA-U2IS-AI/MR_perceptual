@@ -5,7 +5,7 @@ A Study of Deep Perceptual Metrics for Image quality Assessment
 
 This repository is the implementation of the MR_Perceptual loss. This code allows the user to compute the MR_Perceptual loss on the 2AFC dataset and custom images. 
 
-![Alt text](imgs/Diagramme_explication_perceptual_1_v4_square.png?raw=true "Title")
+![Alt text](imgs/schema.png?raw=true "Title")
 
 ## Installation
 
