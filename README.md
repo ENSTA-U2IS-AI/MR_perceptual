@@ -26,7 +26,7 @@ Run `bash ./scripts/download_dataset.sh` to download and unzip the dataset into 
 
 ### Reproduce the results
 
-The script `test_dataset_model.py` perform the metric on the 2AFC dataset :
+The script `test_dataset_model.py` performs the metric on the 2AFC dataset :
 
 To reproduce the results of the MR_perceptual metric, please use the parameter --mrpl
 
