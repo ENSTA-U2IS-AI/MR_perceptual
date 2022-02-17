@@ -9,7 +9,6 @@ import torch.nn.init as init
 from torch.autograd import Variable
 import numpy as np
 from . import pretrained_networks as pn
-#from . import pretrained_VIT as pnVIT
 import torch.nn
 import math
 from PIL import Image
@@ -29,6 +28,7 @@ def upsample(in_tens, out_HW=(64,64)): # assumes scale factor is same for H and 
     return nn.Upsample(size=out_HW, mode='bilinear', align_corners=False)(in_tens)
 
 # Learned perceptual metric
+
 class MRPL(nn.Module):
     def __init__(self, pretrained=True, net='alex', version='0.1', lpips=False,mrpl_like=False,mrpl=False,spatial=False,
         pnet_rand=False, pnet_tune=False, use_dropout=True, model_path=None, eval_mode=True,RBF=False,ssim=False,randomRBF=False,loss_type=None,
@@ -59,46 +59,22 @@ class MRPL(nn.Module):
         self.scaling_layer = ScalingLayer()
         self.training='imagenet'
 
+        if mrpl :
+            if self.loss_type == None :
+                self.loss_type = 'CE'
+            if self.norm == None :
+                self.norm = 'sigmoid'
+            self.mrpl_like = True
+
         num=0
-        if(self.pnet_type in ['vgg','vgg16']):
-            net_type = pn.vgg16
-            self.chns = [64,128,256,512,512]
-        elif(self.pnet_type=='alex'):
+
+        if(self.pnet_type=='alex'):
             net_type = pn.alexnet
             self.chns = [64,192,384,256,256]
-        elif(self.pnet_type=='resnet18'):
-            net_type = pn.resnet
-            num=18
-            self.chns = [64,128,256,512,512]
-        elif(self.pnet_type=='resnet50'):
-            net_type = pn.resnet
-            num = 50
-            self.chns = [64,256,512,1024,2048] 
-        elif(self.pnet_type=='resnet50densecl'):
-            net_type = pn.resnet
-            num = 50
-            self.training='densecl'
-            self.chns = [64,256,512,1024,2048]
-        elif(self.pnet_type=='resnet101'):
-            net_type = pn.resnet
-            num=101
-            self.chns = [64,128,256,512,512]
-        elif(self.pnet_type=='vit'):
-
-            self.chns = [64,128,256,512,512]
-        elif(self.pnet_type=='squeeze'):
-            net_type = pn.squeezenet
-            self.chns = [64,128,256,384,384,512,512]
-
-        if self.pnet_type == 'alex' :
-                self.net = net_type(pretrained=not self.pnet_rand, requires_grad=self.pnet_tune,features=self.feature,resolution=self.resolution,MRPL=self.mrpl)            
-        elif self.pnet_type!='vit':
-            if num==0: 
-                self.net = net_type(pretrained=not self.pnet_rand, requires_grad=self.pnet_tune)
-            else: 
-                self.net = net_type(pretrained=not self.pnet_rand, requires_grad=self.pnet_tune,num=num,training=self.training)
+            self.net = net_type(pretrained=not self.pnet_rand, requires_grad=self.pnet_tune,
+            features=self.feature,resolution=self.resolution,MRPL=self.mrpl)            
         else: 
-            self.net=pnVIT.VIT_feature(pretrained=not self.pnet_rand)
+            raise('Network not implemented !')
 
         if(lpips):
             self.lin0 = NetLinLayer(self.chns[0], use_dropout=use_dropout)
@@ -107,10 +83,6 @@ class MRPL(nn.Module):
             self.lin3 = NetLinLayer(self.chns[3], use_dropout=use_dropout)
             self.lin4 = NetLinLayer(self.chns[4], use_dropout=use_dropout)
             self.lins = [self.lin0,self.lin1,self.lin2,self.lin3,self.lin4]
-            if(self.pnet_type=='squeeze'): # 7 layers for squeezenet
-                self.lin5 = NetLinLayer(self.chns[5], use_dropout=use_dropout)
-                self.lin6 = NetLinLayer(self.chns[6], use_dropout=use_dropout)
-                self.lins+=[self.lin5,self.lin6]
             self.lins = nn.ModuleList(self.lins)
 
         if(randomRBF):
@@ -121,11 +93,8 @@ class MRPL(nn.Module):
             self.lin3_RBF = RFFKernel(self.chns[3], num_samples=512,length_scale=100.0)
             self.lin4_RBF = RFFKernel(self.chns[4], num_samples=512,length_scale=100.0)
             self.lins_RBF = [self.lin0_RBF,self.lin1_RBF,self.lin2_RBF,self.lin3_RBF,self.lin4_RBF]
-            if(self.pnet_type=='squeeze'): # 7 layers for squeezenet
-                self.lin5_RBF = RFFKernel(self.chns[5], num_samples=512,length_scale=100.0)
-                self.lin6_RBF = RFFKernel(self.chns[6], num_samples=512,length_scale=100.0)
-                self.lins_RBF+=[self.lin5_RBF,self.lin6_RBF]
             self.lins_RBF = nn.ModuleList(self.lins_RBF)
+
             if(pretrained):
                 if(model_path is None):
                     import inspect
@@ -179,7 +148,6 @@ class MRPL(nn.Module):
                 feats0[kk], feats1[kk] = mrpl.normalize_tensor(outs0[kk]), mrpl.normalize_tensor(outs1[kk])
                 diffs[kk] = (feats0[kk] - feats1[kk]) ** 2
 
-
         if(self.lpips):
             if(self.spatial):
                 res = [upsample(self.lins[kk](diffs[kk]), out_HW=in0.shape[2:]) for kk in range(self.L)]
@@ -204,7 +172,6 @@ class MRPL(nn.Module):
             return (val, res)
         else:
             return val
-
 
 class ScalingLayer(nn.Module):
     def __init__(self):

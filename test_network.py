@@ -1,13 +1,27 @@
 import torch
 import mrpl
 from IPython import embed
+import argparse
 
 use_gpu = False         # Whether to use GPU
-spatial = True         # Return a spatial map of perceptual distance.
+spatial = False         # Return a spatial map of perceptual distance.
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--mode', type=str, default='mrpl', help='mrpl (best results of the paper) or mr_simple (only x1 and x2 resolution)')
+parser.add_argument('--ref', type=str, default='./imgs/ex_ref.png', help='path to the reference image')
+parser.add_argument('--im1', type=str, default='./imgs/ex_p0.png', help='path to the first image')
+parser.add_argument('--im2', type=str, default='./imgs/ex_p1.png', help='path to the second image')
+opt = parser.parse_args()
 
 # Linearly calibrated models (LPIPS)
-loss_fn = mrpl.LPIPS(net='alex', spatial=spatial) # Can also set net = 'squeeze' or 'vgg'
-# loss_fn = lpips.LPIPS(net='alex', spatial=spatial, lpips=False) # Can also set net = 'squeeze' or 'vgg'
+if opt.mode == 'mrpl':
+    loss_fn = mrpl.MRPL(net='alex', spatial=spatial,mrpl=True) 
+elif opt.mode == 'mr_simple':
+    loss_fn = mrpl.MRPL(net='alex', spatial=spatial,mrpl=False,loss_type='CE',norm='sigmoid',feature='linear',resolution=['x1','x2'],mrpl_like=True) 
+else :
+    raise('Not implemented !')
+
+# loss_fn = lpips.MRPL(net='alex', spatial=spatial, lpips=False) # Can also set net = 'squeeze' or 'vgg'
 
 if(use_gpu):
 	loss_fn.cuda()
@@ -21,9 +35,10 @@ if(use_gpu):
 dist = loss_fn.forward(dummy_im0,dummy_im1)
 
 ## Example usage with images
-ex_ref = mrpl.im2tensor(mrpl.load_image('./imgs/ex_ref.png'))
-ex_p0 = mrpl.im2tensor(mrpl.load_image('./imgs/ex_p0.png'))
-ex_p1 = mrpl.im2tensor(mrpl.load_image('./imgs/ex_p1.png'))
+ex_ref = mrpl.im2tensor(mrpl.load_image(opt.ref))
+ex_p0 = mrpl.im2tensor(mrpl.load_image(opt.im1))
+ex_p1 = mrpl.im2tensor(mrpl.load_image(opt.im2))
+
 if(use_gpu):
 	ex_ref = ex_ref.cuda()
 	ex_p0 = ex_p0.cuda()
