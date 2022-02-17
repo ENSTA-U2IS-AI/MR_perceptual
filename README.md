@@ -32,17 +32,20 @@ To reproduce the results of the MR_perceptual metric, please use the parameter -
 
 `python test_dataset_model.py --mrpl`
 
-It is also possible to compute the MR_perceptual metric in various setups. For exemple, to perform the metric by using cross entropy loss, sigmoid, linear features and x1 resolution, run :
+It is also possible to compute the MR_perceptual metric in various setups. For example, to perform the metric by using cross-entropy loss, sigmoid, linear features, and x1 resolution, run :
 
 `python test_dataset_model.py --loss CE --norm sigmoid --feature linear --resolution x1`
 
 ### Use the MRPL metric
 
-The script `test_network.py` can be used to compute the MR_perceptual metric between two given images compared to a reference image :
+The script `test_network.py` can be used to compute the MR_perceptual metric between two given images compared to a reference image. Two setups are available :
+- mrpl, which computes the MR_perceptual loss
+- mr_simple, which computes the MR_perceptual loss without using gramm matrix
 
-`python test_network.py --ref PATH/TO/REFERENCE_IMG --img1 PATH/TO/IMG_1  --ref PATH/TO/IMG_2 `
+For example, if you want to compute the MR_perceptual loss between two images, please run :
+
+`python test_network.py --ref PATH/TO/REFERENCE_IMG --img1 PATH/TO/IMG_1  --ref PATH/TO/IMG_2 --mode mrpl`
 
 ## Acknowledgements
 
-This repository is based from the [PerceptualSimilarity] repo (https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) Thanks to the authors ! 
-
+This repository is based on the [PerceptualSimilarity] repo (https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) Thanks to the authors! 
