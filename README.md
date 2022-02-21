@@ -1,5 +1,5 @@
 # MR_perceptual
-A Study of Deep Perceptual Metrics for Image quality Assessment. This is the implementation of the paper "A study of deep perceptual metrics for image quality assessment" available [[here](https://arxiv.org/pdf/2202.08692.pdf)].
+A Study of Deep Perceptual Metrics for Image quality Assessment. This is the implementation of the paper "A study of deep perceptual metrics for image quality assessment" available [here(https://arxiv.org/pdf/2202.08692.pdf)].
 
 ## Overview
 
