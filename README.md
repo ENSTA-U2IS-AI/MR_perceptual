@@ -46,6 +46,23 @@ For example, if you want to compute the MR_perceptual loss between two images, p
 
 `python test_network.py --ref PATH/TO/REFERENCE_IMG --img1 PATH/TO/IMG_1  --ref PATH/TO/IMG_2 --mode mrpl`
 
+## pip package
+
+For the users which want to perform easily the metric, a pip package is available. For this, run :
+
+`pip install MR_perceptual`
+
+### Usage Example
+
+Here an usage example to perform the metric : 
+`
+from MR_perceptual import test_network
+
+dist = test_network.MRPL_2_images(PATH/TO/IMG_1,PATH/TO/REFERENCE_IMG)
+
+print(dist)
+`
+
 ## Acknowledgements
 
 This repository is based on the [PerceptualSimilarity] repo (https://github.com/richzhang/PerceptualSimilarity) Thanks to the authors! 
