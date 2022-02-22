@@ -55,13 +55,14 @@ For the users which want to perform easily the metric, a pip package is availabl
 ### Usage Example
 
 Here an usage example to perform the metric : 
-`
+
+```
 from MR_perceptual import test_network
 
 dist = test_network.MRPL_2_images(PATH/TO/IMG_1,PATH/TO/REFERENCE_IMG)
 
 print(dist)
-`
+```
 
 ## Acknowledgements
 
