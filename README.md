@@ -48,4 +48,4 @@ For example, if you want to compute the MR_perceptual loss between two images, p
 
 ## Acknowledgements
 
-This repository is based on the [PerceptualSimilarity] repo (https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) Thanks to the authors! 
+This repository is based on the [PerceptualSimilarity] repo (https://github.com/richzhang/PerceptualSimilarity) Thanks to the authors! 
